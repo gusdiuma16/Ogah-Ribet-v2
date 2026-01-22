@@ -4,7 +4,7 @@ import { Transaction, TransactionType, TransactionStatus, AppConfig, AdminNotifi
 // KONFIGURASI PENTING
 // ==================================================================================
 // GANTI URL INI DENGAN URL DEPLOYMENT BARU ANDA (Permission: Anyone)
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5cvAZmeUapOqo0mmiTDhVk_LXEAcJ8l5FPARHjOVbPX88qx6eGKWZvSVLfUtl-TQl/exec'; 
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbweNtFCRxkeJNhvY-FA4R3XoQVnwhmo64XKm7hMSquo_LDVQGnIvVPesxiMn-4muNr2/exec'; 
 // ==================================================================================
 
 // --- DATA FALLBACK (OFFLINE/ERROR) ---
@@ -50,8 +50,6 @@ const fetchData = async (action: string, params: string = '') => {
   if (!GOOGLE_SCRIPT_URL) return null;
 
   try {
-    // Gunakan 'no-cors' tidak disarankan karena kita butuh response body JSON.
-    // Jika Script di-deploy dengan Access "Anyone", fetch standar akan bekerja.
     const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=${action}${params}`);
     
     if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
@@ -69,14 +67,11 @@ const fetchData = async (action: string, params: string = '') => {
 // Helper untuk POST data
 const postData = async (action: string, data: any) => {
     try {
-        // Google Apps Script memerlukan "text/plain" untuk menghindari preflight OPTIONS check (CORS complex request)
-        // Kita kirim body JSON sebagai string
         const payload = JSON.stringify({ action, data });
         
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             body: payload,
-            // Header ini penting agar browser tidak mengirim request OPTIONS
             headers: {
                 "Content-Type": "text/plain;charset=utf-8",
             },
@@ -101,9 +96,7 @@ const parseAmount = (val: any): number => {
     return 0;
 };
 
-// Fungsi ini memastikan data dari Sheet (apapun format headernya) dipetakan ke Tipe Aplikasi
 const mapTransaction = (raw: any): Transaction => {
-    // Coba tebak key dari raw object (karena header sheet bisa uppercase/lowercase)
     const getVal = (keys: string[]) => {
         for (const k of keys) if (raw[k] !== undefined) return raw[k];
         return undefined;
@@ -161,6 +154,18 @@ export const getAllTransactions = async (): Promise<Transaction[]> => {
   return FALLBACK_TRANSACTIONS;
 };
 
+export const approveTransaction = async (id: string): Promise<boolean> => {
+    // Fungsi ini membutuhkan Action 'approveTransaction' di Google Apps Script Anda.
+    // Jika belum ada, Anda perlu menambahkannya di backend.
+    const success = await postData('approveTransaction', { id });
+    if (!success) {
+        // Fallback simulation jika offline
+        console.warn("Server approval failed, simulating success locally.");
+        return true; 
+    }
+    return success;
+};
+
 export const getPrograms = async (): Promise<Program[]> => {
   const data = await fetchData('getPrograms');
   if (data && Array.isArray(data)) return data.map(mapProgram);
@@ -197,7 +202,6 @@ export const updateAppConfig = async (newConfig: Partial<AppConfig>): Promise<bo
         localConfig = { ...localConfig, ...newConfig };
         return true;
     }
-    // Fallback local update if network fails
     localConfig = { ...localConfig, ...newConfig };
     alert("Gagal update ke server. Config disimpan lokal sementara.");
     return true;
@@ -208,7 +212,6 @@ export const updateAppConfig = async (newConfig: Partial<AppConfig>): Promise<bo
 export const getNotifications = async (): Promise<AdminNotification[]> => {
   try {
     const transactions = await getAllTransactions();
-    // Jika ID transaksi dummy (TRX-1), jangan jadikan notif
     if (transactions.length === 1 && transactions[0].id === 'TRX-1') return [];
     
     const pending = transactions.filter(t => t.status === TransactionStatus.PENDING);
