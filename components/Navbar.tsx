@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Heart } from 'lucide-react';
 import { getAppConfig, getConfig } from '../services/mockDataService';
+import logoOgah from '../assets/ogah.png';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,7 +28,7 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex-shrink-0 flex items-center gap-2 cursor-pointer">
-            <img className="h-8 w-8 object-contain" src="/ogah.png" alt="Logo" />
+            <img className="h-8 w-8 object-contain" src="logoOgah" alt="Logo" />
             <span className="font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
               Ogah Ribetzz
             </span>
