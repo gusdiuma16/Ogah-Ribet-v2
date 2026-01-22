@@ -181,7 +181,7 @@ export const getMapLocations = async (): Promise<MapLocation[]> => {
 // --- CONFIG ---
 
 let localConfig: AppConfig = {
-  logoUrl: 'https://cdn-icons-png.flaticon.com/512/3063/3063822.png',
+  logoUrl: '/ogah.png',
   qrisUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png',
   youtubePlaylistId: 'jfKfPfyJRdk'
 };
