@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Heart, Lock, X, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Footer: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [accessCode, setAccessCode] = useState('');
+  const navigate = useNavigate();
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -13,8 +15,9 @@ const Footer: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (accessCode === '1608') {
-      // Force navigation untuk memastikan fresh reload di halaman admin
-      window.location.href = '/hidden-admin?auth=true';
+      // Menggunakan navigate (Client Side Routing) agar tidak terjadi 404 Not Found
+      navigate('/hidden-admin?auth=true');
+      setIsModalOpen(false);
     } else {
       alert("Kode akses salah!");
       setAccessCode('');
@@ -46,7 +49,7 @@ const Footer: React.FC = () => {
         </div>
       </footer>
 
-      {/* Security Modal - Selalu dirender jika state true, menggantikan window.prompt */}
+      {/* Security Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></div>
