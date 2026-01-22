@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Heart } from 'lucide-react';
 
 const Navbar: React.FC = () => {
-  const [logoUrl, setLogoUrl] = useState(getConfig().logoUrl); 
   const location = useLocation();
 
   
