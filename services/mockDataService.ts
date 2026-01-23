@@ -4,7 +4,7 @@ import { Transaction, TransactionType, TransactionStatus, AppConfig, AdminNotifi
 // KONFIGURASI PENTING
 // ==================================================================================
 // GANTI URL INI DENGAN URL DEPLOYMENT BARU ANDA (Permission: Anyone)
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbweNtFCRxkeJNhvY-FA4R3XoQVnwhmo64XKm7hMSquo_LDVQGnIvVPesxiMn-4muNr2/exec'; 
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby3no5sJNE44YBJM693p3X5dvhm_cdF75k4g0Tzg5dYQYw6vl4QTaexhOGaDvDZucI/exec'; 
 // ==================================================================================
 
 // --- DATA FALLBACK (OFFLINE/ERROR) ---
@@ -87,57 +87,43 @@ const postData = async (action: string, data: any) => {
 
 // --- DATA MAPPING HELPER ---
 
-const parseAmount = (val: any): number => {
-    if (typeof val === 'number') return val;
-    if (typeof val === 'string') {
-        const clean = val.replace(/[^0-9]/g, '');
-        return parseInt(clean) || 0;
-    }
-    return 0;
-};
-
+// Mapping untuk Transaksi (Pemasukan & Pengeluaran)
 const mapTransaction = (raw: any): Transaction => {
-    const getVal = (keys: string[]) => {
-        for (const k of keys) if (raw[k] !== undefined) return raw[k];
-        return undefined;
-    };
-
-    const typeStr = String(getVal(['type', 'Type']) || '').toLowerCase();
-    let type = TransactionType.INCOME;
-    if (typeStr.includes('expense') || typeStr.includes('pengeluaran')) type = TransactionType.EXPENSE;
-
-    const statusStr = String(getVal(['status', 'Status']) || 'PENDING');
-    const status = statusStr.toUpperCase() === 'APPROVED' ? TransactionStatus.APPROVED : TransactionStatus.PENDING;
-
+    const tipeRaw = String(raw['Tipe'] || '').toLowerCase();
+    
     return {
-        id: String(getVal(['id', 'ID']) || `trx-${Math.random()}`),
-        date: String(getVal(['date', 'Date']) || new Date().toISOString()),
-        name: String(getVal(['name', 'Name', 'title', 'Title']) || 'Tanpa Nama'),
-        amount: parseAmount(getVal(['amount', 'Amount'])),
-        type: type,
-        category: String(getVal(['category', 'Category']) || 'Umum'),
-        status: status,
-        proofUrl: String(getVal(['proofUrl', 'ProofUrl', 'image']) || '')
+        id: String(raw['ID'] || Math.random()),
+        date: String(raw['Tanggal'] || new Date().toISOString()),
+        name: String(raw['Nama Donatur'] || 'Hamba Allah'),
+        amount: parseAmount(raw['Nominal']),
+        type: (tipeRaw.includes('pengeluaran') || tipeRaw.includes('expense')) 
+               ? TransactionType.EXPENSE : TransactionType.INCOME,
+        category: 'Umum', // Kamu bisa tambah kolom Kategori di Sheet jika mau
+        status: String(raw['Verivikasi']).toUpperCase() === 'APPROVED' 
+                ? TransactionStatus.APPROVED : TransactionStatus.PENDING,
+        proofUrl: String(raw['Bukti Transfer'] || '')
     };
 };
 
+// Mapping untuk Program
 const mapProgram = (raw: any): Program => ({
-    id: raw.id || raw.ID || `prog-${Math.random()}`,
-    title: raw.title || raw.Title || 'Program',
-    batch: raw.batch || raw.Batch || '',
-    status: raw.status || raw.Status || 'COMING_SOON',
-    description: raw.description || raw.Description || '',
-    image: raw.image || raw.Image || 'https://via.placeholder.com/400',
-    link: raw.link || raw.Link || '#'
+    id: String(raw['ID'] || ''),
+    title: String(raw['Title'] || ''),
+    batch: String(raw['Batch'] || ''),
+    status: String(raw['Status'] || 'ACTIVE'),
+    description: String(raw['Description'] || ''),
+    image: String(raw['Image'] || ''),
+    link: String(raw['Link'] || '#')
 });
 
+// Mapping untuk Location
 const mapLocation = (raw: any): MapLocation => ({
-    id: raw.id || raw.ID || `loc-${Math.random()}`,
-    title: raw.title || raw.Title || 'Lokasi',
-    lat: Number(raw.lat || raw.Lat || 0),
-    lng: Number(raw.lng || raw.Lng || 0),
-    description: raw.description || raw.Description || '',
-    programBatch: raw.programBatch || raw.ProgramBatch || ''
+    id: String(raw['ID'] || ''),
+    title: String(raw['Title'] || ''),
+    lat: Number(raw['Lat'] || 0),
+    lng: Number(raw['Lng'] || 0),
+    description: String(raw['Description'] || ''),
+    programBatch: String(raw['Batch'] || '')
 });
 
 // --- EXPORTED FUNCTIONS ---
