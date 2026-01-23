@@ -170,7 +170,7 @@ const Berbagi: React.FC = () => {
                                 <div className="space-y-1">
                                     <label className="text-sm font-semibold text-gray-700">QRIS Scan</label>
                                     <div className="bg-gray-50 p-4 rounded-xl border-2 border-dashed border-gray-200 flex justify-center">
-                                        <img src="/qris.png" alt="QRIS" className="h-48 object-contain" />
+                                        <img src="/qris.png" alt="QRIS" className="w-full max-w-[280px] h-auto object-contain" />
                                     </div>
                                 </div>
 
