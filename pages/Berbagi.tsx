@@ -12,7 +12,7 @@ const Berbagi: React.FC = () => {
   const [config, setConfig] = useState({ 
     logoUrl: '', 
     qrisUrl: '', 
-    youtubePlaylistId: 'shorts/0ynAZZFsp8g' // default
+    youtubePlaylistId: '0ynAZZFsp8g' // default
   });
   
   // Donation Form States
